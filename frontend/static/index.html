@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant SOP Compliance Portal</title>
+    <meta name="description" content="Premium AI-powered Restaurant Standard Operating Procedures & Compliance Intelligence Portal">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Ambient floating orbs -->
+    <div class="glow-container">
+        <div class="glow-bubble bubble-1"></div>
+        <div class="glow-bubble bubble-2"></div>
+        <div class="glow-bubble bubble-3"></div>
+        <div class="glow-bubble bubble-4"></div>
+    </div>
+
+    <!-- Animated particles canvas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ========================= LOGIN SCREEN ========================= -->
+    <div id="login-screen" class="login-screen active">
+
+        <div class="login-card">
+            <!-- Animated border glow ring -->
+            <div class="card-glow-ring"></div>
+
+            <div class="brand-header">
+                <div class="logo-icon-container">
+                    <div class="logo-ring"></div>
+                    <div class="logo-icon"><i class="fa-solid fa-utensils"></i></div>
+                </div>
+                <h1 class="gradient-title login-title-anim">RESTAURANT SOP BOT</h1>
+                <p class="subtitle login-subtitle-anim">Compliance Intelligence & Operations Portal</p>
+            </div>
+            
+            <div id="login-error" class="error-box hidden">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="login-error-msg">Invalid credentials.</span>
+            </div>
+
+            <form id="login-form" class="login-form-anim">
+                <div class="input-group floating-label-group">
+                    <div class="input-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <input type="text" id="username" placeholder=" " required autocomplete="username">
+                    <label for="username">Username</label>
+                    <div class="input-underline"></div>
+                </div>
+                
+                <div class="input-group floating-label-group">
+                    <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder=" " required autocomplete="current-password">
+                        <label for="password">Password</label>
+                        <button type="button" id="toggle-password" class="password-toggle-btn">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-underline"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-login" id="btn-login-submit">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                    <span class="btn-loader hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                </button>
+            </form>
+
+            <div class="login-footer-text">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Enterprise Secured Access · Compliance Grade</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= MAIN APP SHELL ========================= -->
+    <div id="app-shell" class="app-shell hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <span>SOP Portal</span>
+                </div>
+            </div>
+            
+            <div class="user-profile-section">
+                <div class="user-avatar-ring">
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </div>
+                </div>
+                <div class="user-details">
+                    <div class="display-name-row">
+                        <h3 id="sidebar-display-name">User</h3>
+                        <button type="button" id="btn-edit-profile" class="btn-edit-profile" title="Edit Profile Name">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </div>
+                    <p id="sidebar-designation" class="designation-text">Staff</p>
+                    <div id="sidebar-role-badge" class="badge">ROLE</div>
+                </div>
+            </div>
+
+            <!-- Role Simulator (Manager Only) -->
+            <div id="role-simulator" class="role-simulator hidden">
+                <h4 class="section-title"><i class="fa-solid fa-sliders"></i> Access Simulator</h4>
+                <div class="simulator-options">
+                    <button class="sim-btn active" data-sim="manager">Manager <small>(Full)</small></button>
+                    <button class="sim-btn" data-sim="kitchen">Kitchen <small>(Scope)</small></button>
+                    <button class="sim-btn" data-sim="server">Server <small>(Scope)</small></button>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" id="nav-chat-tab" onclick="switchTab('chat')">
+                    <i class="fa-solid fa-comments"></i> <span>Compliance Chat</span>
+                </button>
+                <button class="nav-item hidden" id="nav-admin-tab" onclick="switchTab('admin')">
+                    <i class="fa-solid fa-gears"></i> <span>Admin Console</span>
+                </button>
+            </nav>
+
+            <!-- Staff Directory (Manager Only) -->
+            <div id="staff-directory" class="staff-directory hidden">
+                <h4 class="section-title"><i class="fa-solid fa-users"></i> Staff Directory</h4>
+                <div class="staff-list" id="staff-list-container">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-action-btn" onclick="clearChat()">
+                    <i class="fa-solid fa-broom"></i> <span>Clear History</span>
+                </button>
+                <button class="sidebar-action-btn" onclick="exportChatAudit()">
+                    <i class="fa-solid fa-file-csv"></i> <span>Export Audit</span>
+                </button>
+                <button class="sidebar-action-btn btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h2 id="view-title">Compliance Assistant</h2>
+                    <p id="view-subtitle" class="text-muted">Role-based SOP Retrieval & Grounded Q&A</p>
+                </div>
+                <div class="header-right">
+                    <span class="connection-status"><span class="status-indicator online"></span> Live</span>
+                </div>
+            </header>
+
+            <!-- TAB 1: COMPLIANCE CHAT -->
+            <div id="tab-chat" class="tab-panel active">
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages-area">
+                        <div class="chat-message assistant fade-in-up">
+                            <div class="message-avatar"><i class="fa-solid fa-robot"></i></div>
+                            <div class="message-content">
+                                <p>👋 Welcome to the <strong>Restaurant Compliance Assistant</strong>.</p>
+                                <p>Ask me any question about Standard Operating Procedures — food safety, hygiene, service protocols, and more. Your role-based access ensures you see only relevant documents.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="suggestions-section">
+                        <span class="suggestions-label">Quick Queries:</span>
+                        <div id="suggestions-container" class="suggestions-wrapper"></div>
+                    </div>
+
+                    <form id="chat-input-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ask about food safety, hygiene rules, service protocols..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary btn-send">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 2: ADMIN PANEL -->
+            <div id="tab-admin" class="tab-panel">
+                <div class="metrics-grid">
+                    <div class="kpi-card fade-in-up">
+                        <div class="kpi-icon icon-purple"><i class="fa-solid fa-file-shield"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Active SOPs</span>
+                            <h3 id="kpi-docs-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.05s;">
+                        <div class="kpi-icon icon-indigo"><i class="fa-solid fa-circle-question"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Audit Chats</span>
+                            <h3 id="kpi-chats-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.1s;">
+                        <div class="kpi-icon icon-pink"><i class="fa-solid fa-star-half-stroke"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Feedback</span>
+                            <h3 id="kpi-feedback-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.15s;">
+                        <div class="kpi-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Quality Score</span>
+                            <h3 id="kpi-quality-score">0%</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-container-card fade-in-up">
+                        <h4><i class="fa-solid fa-chart-bar"></i> Satisfaction Distribution</h4>
+                        <div class="chart-wrapper"><canvas id="satisfaction-chart"></canvas></div>
+                    </div>
+                    <div class="chart-container-card fade-in-up" style="animation-delay:0.1s;">
+                        <h4><i class="fa-solid fa-chart-line"></i> Daily Audit Timeline</h4>
+                        <div class="chart-wrapper"><canvas id="timeline-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="admin-sections-layout">
+                    <!-- Documents -->
+                    <div class="admin-column doc-repo-card fade-in-up">
+                        <div class="column-header">
+                            <h3><i class="fa-solid fa-folder-open"></i> Document Repository</h3>
+                            <button class="btn btn-secondary btn-small" onclick="forceRebuildIndex()">
+                                <i class="fa-solid fa-arrows-rotate"></i> Rebuild
+                            </button>
+                        </div>
+                        <div class="doc-list-wrapper" id="document-list-container"></div>
+                    </div>
+
+                    <!-- Upload & Actions -->
+                    <div class="admin-column system-actions-card fade-in-up" style="animation-delay:0.1s;">
+                        <h3><i class="fa-solid fa-cloud-arrow-up"></i> Upload SOP Document</h3>
+                        <form id="upload-form" class="upload-section">
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-file-signature"></i></div>
+                                <input type="text" id="upload-display-name" placeholder=" " required>
+                                <label for="upload-display-name">SOP Display Name</label>
+                                <div class="input-underline"></div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="static-label">Staff Role Permissions</label>
+                                <div class="role-checkbox-group">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="role-kitchen-check" value="kitchen" checked>
+                                        <span class="checkmark"></span> Kitchen
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="role-server-check" value="server" checked>
+                                        <span class="checkmark"></span> Service
+                                    </label>
+                                </div>
+                                <small class="input-tip">Manager always has full access.</small>
+                            </div>
+
+                            <div id="dropzone" class="dropzone">
+                                <i class="fa-solid fa-file-pdf dropzone-icon"></i>
+                                <p class="dropzone-text">Drag & drop PDF here, or click to browse</p>
+                                <input type="file" id="upload-file-input" accept="application/pdf" class="hidden">
+                                <div id="selected-file-indicator" class="selected-file-indicator hidden">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    <span id="selected-filename">filename.pdf</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-upload-submit">
+                                <i class="fa-solid fa-gears"></i> Process & Index Document
+                            </button>
+                        </form>
+
+                        <hr class="divider">
+
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Emergency Actions</h3>
+                        <div class="danger-actions-group">
+                            <div class="danger-row">
+                                <div class="danger-info">
+                                    <strong>Erase SOP Repository</strong>
+                                    <p class="text-muted">Delete all indexed documents and vector store.</p>
+                                </div>
+                                <div class="danger-action">
+                                    <label class="checkbox-container text-danger">
+                                        <input type="checkbox" id="confirm-erase-docs"> Confirm
+                                    </label>
+                                    <button class="btn btn-danger" id="btn-erase-docs" disabled onclick="eraseAllDocuments()">Erase All</button>
+                                </div>
+                            </div>
+                            <div class="danger-row">
+                                <div class="danger-info">
+                                    <strong>Erase Logs & Feedback</strong>
+                                    <p class="text-muted">Clear all chat and quality feedback data.</p>
+                                </div>
+                                <div class="danger-action">
+                                    <label class="checkbox-container text-danger">
+                                        <input type="checkbox" id="confirm-erase-logs"> Confirm
+                                    </label>
+                                    <button class="btn btn-danger" id="btn-erase-logs" disabled onclick="eraseAllLogs()">Erase Logs</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Table -->
+                <div class="audit-log-section fade-in-up">
+                    <div class="column-header">
+                        <h3><i class="fa-solid fa-receipt"></i> Audit Logs & Feedback</h3>
+                    </div>
+                    <div class="feedback-table-wrapper">
+                        <table class="feedback-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Timestamp</th>
+                                    <th>Query & Response</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedback-logs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================= PROFILE EDIT MODAL ========================= -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-card fade-in">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-gear"></i> Update Profile Name</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-profile-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="profile-edit-form">
+                    <div class="input-group">
+                        <label class="static-label">Role Access & Designation</label>
+                        <p class="modal-info-text">
+                            <span id="modal-profile-designation">General Manager</span> · 
+                            <span id="modal-profile-role" class="badge">manager</span>
+                        </p>
+                    </div>
+                    
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-signature"></i></div>
+                        <input type="text" id="profile-new-name" placeholder=" " required>
+                        <label for="profile-new-name">New Display Name</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <div id="profile-error-box" class="error-box hidden" style="margin-top: -10px; margin-bottom: 15px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="profile-error-msg">Please enter a valid name.</span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-save-profile">
+                        <i class="fa-solid fa-check"></i> Save & Apply Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
