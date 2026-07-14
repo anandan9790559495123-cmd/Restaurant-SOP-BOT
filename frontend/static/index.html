@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant SOP Compliance Portal</title>
+    <meta name="description" content="Premium AI-powered Restaurant Standard Operating Procedures & Compliance Intelligence Portal">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Theme Toggle (Global) -->
+    <button id="theme-toggle" class="global-theme-toggle" title="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+    <!-- Ambient floating orbs -->
+    <div class="glow-container">
+        <div class="glow-bubble bubble-1"></div>
+        <div class="glow-bubble bubble-2"></div>
+        <div class="glow-bubble bubble-3"></div>
+        <div class="glow-bubble bubble-4"></div>
+    </div>
+
+    <!-- Animated particles canvas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ========================= LOGIN SCREEN ========================= -->
+    <div id="login-screen" class="login-screen active">
+
+        <div class="login-card">
+            <!-- Animated border glow ring -->
+            <div class="card-glow-ring"></div>
+
+            <div class="brand-header">
+                <div class="logo-icon-container">
+                    <div class="logo-ring"></div>
+                    <div class="logo-icon"><i class="fa-solid fa-utensils"></i></div>
+                </div>
+                <h1 class="gradient-title login-title-anim">RESTAURANT SOP BOT</h1>
+                <p class="subtitle login-subtitle-anim">Compliance Intelligence & Operations Portal</p>
+            </div>
+            
+            <div id="login-error" class="error-box hidden">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="login-error-msg">Invalid credentials.</span>
+            </div>
+
+            <form id="login-form" class="login-form-anim">
+                <div class="input-group floating-label-group">
+                    <div class="input-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <input type="text" id="username" placeholder=" " required autocomplete="username">
+                    <label for="username">Username</label>
+                    <div class="input-underline"></div>
+                </div>
+                
+                <div class="input-group floating-label-group">
+                    <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder=" " required autocomplete="current-password">
+                        <label for="password">Password</label>
+                        <button type="button" id="toggle-password" class="password-toggle-btn">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-underline"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-login" id="btn-login-submit">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                    <span class="btn-loader hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                </button>
+            </form>
+
+            <div class="login-footer-text">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Enterprise Secured Access · Compliance Grade</span>
+            </div>
+            <div class="forgot-password-link">
+                <a href="#" id="btn-forgot-password" class="forgot-link">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= MAIN APP SHELL ========================= -->
+    <div id="app-shell" class="app-shell hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <span>SOP Portal</span>
+                </div>
+            </div>
+            
+            <div class="user-profile-section">
+                <div class="user-avatar-ring">
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-circle-user"></i>
+                    </div>
+                </div>
+                <div class="user-details">
+                    <div class="display-name-row">
+                        <h3 id="sidebar-display-name">User</h3>
+                        <button type="button" id="btn-edit-profile" class="btn-edit-profile" title="Edit Profile Name">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </div>
+                    <p id="sidebar-designation" class="designation-text">Staff</p>
+                    <div id="sidebar-role-badge" class="badge">ROLE</div>
+                </div>
+            </div>
+
+            <!-- Role Simulator (Manager Only) -->
+            <div id="role-simulator" class="role-simulator hidden">
+                <h4 class="section-title"><i class="fa-solid fa-sliders"></i> Access Simulator</h4>
+                <div class="simulator-options">
+                    <button class="sim-btn active" data-sim="manager">Manager <small>(Full)</small></button>
+                    <button class="sim-btn" data-sim="kitchen">Kitchen <small>(Scope)</small></button>
+                    <button class="sim-btn" data-sim="server">Server <small>(Scope)</small></button>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" id="nav-chat-tab" onclick="switchTab('chat')">
+                    <i class="fa-solid fa-comments"></i> <span>Compliance Chat</span>
+                </button>
+                <button class="nav-item hidden" id="nav-admin-tab" onclick="switchTab('admin')">
+                    <i class="fa-solid fa-gears"></i> <span>Admin Console</span>
+                </button>
+            </nav>
+
+            <!-- Staff Directory (Manager Only) -->
+            <div id="staff-directory" class="staff-directory hidden">
+                <h4 class="section-title"><i class="fa-solid fa-users"></i> Staff Directory</h4>
+                <div class="staff-list" id="staff-list-container">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-action-btn" onclick="clearChat()">
+                    <i class="fa-solid fa-broom"></i> <span>Clear History</span>
+                </button>
+                <button class="sidebar-action-btn" onclick="exportChatAudit()">
+                    <i class="fa-solid fa-file-csv"></i> <span>Export Audit</span>
+                </button>
+                <button class="sidebar-action-btn" id="btn-change-password-sidebar" onclick="openChangePasswordModal()">
+                    <i class="fa-solid fa-key"></i> <span>Change Password</span>
+                </button>
+                <button class="sidebar-action-btn btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h2 id="view-title">Compliance Assistant</h2>
+                    <p id="view-subtitle" class="text-muted">Role-based SOP Retrieval & Grounded Q&A</p>
+                </div>
+                <div class="header-right" style="display: flex; align-items: center;">
+                    <span class="connection-status"><span class="status-indicator online"></span> Live</span>
+                </div>
+            </header>
+
+            <!-- TAB 1: COMPLIANCE CHAT -->
+            <div id="tab-chat" class="tab-panel active">
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages-area">
+                        <div class="chat-message assistant fade-in-up">
+                            <div class="message-avatar"><i class="fa-solid fa-robot"></i></div>
+                            <div class="message-content">
+                                <p>👋 Welcome to the <strong>Restaurant Compliance Assistant</strong>.</p>
+                                <p>Ask me any question about Standard Operating Procedures — food safety, hygiene, service protocols, and more. Your role-based access ensures you see only relevant documents.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="suggestions-section">
+                        <span class="suggestions-label">Quick Queries:</span>
+                        <div id="suggestions-container" class="suggestions-wrapper"></div>
+                    </div>
+
+                    <form id="chat-input-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ask about food safety, hygiene rules, service protocols..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary btn-send">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 2: ADMIN PANEL -->
+            <div id="tab-admin" class="tab-panel">
+                <div class="metrics-grid">
+                    <div class="kpi-card fade-in-up">
+                        <div class="kpi-icon icon-purple"><i class="fa-solid fa-file-shield"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label" id="kpi-docs-label">Active SOPs</span>
+                            <h3 id="kpi-docs-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.05s;">
+                        <div class="kpi-icon icon-indigo"><i class="fa-solid fa-circle-question"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label" id="kpi-chats-label">Audit Chats</span>
+                            <h3 id="kpi-chats-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.1s;">
+                        <div class="kpi-icon icon-pink"><i class="fa-solid fa-star-half-stroke"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label" id="kpi-feedback-label">Feedback</span>
+                            <h3 id="kpi-feedback-count">0</h3>
+                        </div>
+                    </div>
+                    <div class="kpi-card fade-in-up" style="animation-delay:0.15s;">
+                        <div class="kpi-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label" id="kpi-quality-label">Quality Score</span>
+                            <h3 id="kpi-quality-score">0%</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-container-card fade-in-up">
+                        <h4><i class="fa-solid fa-chart-bar"></i> Satisfaction Distribution</h4>
+                        <div class="chart-wrapper"><canvas id="satisfaction-chart"></canvas></div>
+                    </div>
+                    <div class="chart-container-card fade-in-up" style="animation-delay:0.1s;">
+                        <h4><i class="fa-solid fa-chart-line"></i> Daily Audit Timeline</h4>
+                        <div class="chart-wrapper"><canvas id="timeline-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="admin-sections-layout">
+                    <!-- Documents -->
+                    <div class="admin-column doc-repo-card fade-in-up">
+                        <div class="column-header">
+                            <h3><i class="fa-solid fa-folder-open"></i> Document Repository</h3>
+                            <button class="btn btn-secondary btn-small" onclick="forceRebuildIndex()">
+                                <i class="fa-solid fa-arrows-rotate"></i> Rebuild
+                            </button>
+                        </div>
+                        <div class="doc-list-wrapper" id="document-list-container"></div>
+                    </div>
+
+                    <!-- Upload & Actions -->
+                    <div class="admin-column system-actions-card fade-in-up" style="animation-delay:0.1s;">
+                        <h3><i class="fa-solid fa-cloud-arrow-up"></i> Upload SOP Document</h3>
+                        <form id="upload-form" class="upload-section">
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-file-signature"></i></div>
+                                <input type="text" id="upload-display-name" placeholder=" " required>
+                                <label for="upload-display-name">SOP Display Name</label>
+                                <div class="input-underline"></div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="static-label">Staff Role Permissions</label>
+                                <div class="role-checkbox-group">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="role-kitchen-check" value="kitchen" checked>
+                                        <span class="checkmark"></span> Kitchen
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="role-server-check" value="server" checked>
+                                        <span class="checkmark"></span> Service
+                                    </label>
+                                </div>
+                                <small class="input-tip">Manager always has full access.</small>
+                            </div>
+
+                            <div id="dropzone" class="dropzone">
+                                <i class="fa-solid fa-file-pdf dropzone-icon"></i>
+                                <p class="dropzone-text">Drag & drop PDF here, or click to browse</p>
+                                <input type="file" id="upload-file-input" accept="application/pdf" class="hidden">
+                                <div id="selected-file-indicator" class="selected-file-indicator hidden">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    <span id="selected-filename">filename.pdf</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-upload-submit">
+                                <i class="fa-solid fa-gears"></i> Process & Index Document
+                            </button>
+                        </form>
+
+                        <hr class="divider">
+
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Emergency Actions</h3>
+                        <div class="danger-actions-group">
+                            <div class="danger-row">
+                                <div class="danger-info">
+                                    <strong>Erase SOP Repository</strong>
+                                    <p class="text-muted">Delete all indexed documents and vector store.</p>
+                                </div>
+                                <div class="danger-action">
+                                    <label class="checkbox-container text-danger">
+                                        <input type="checkbox" id="confirm-erase-docs"> Confirm
+                                    </label>
+                                    <button class="btn btn-danger" id="btn-erase-docs" disabled onclick="eraseAllDocuments()">Erase All</button>
+                                </div>
+                            </div>
+                            <div class="danger-row">
+                                <div class="danger-info">
+                                    <strong>Erase Logs & Feedback</strong>
+                                    <p class="text-muted">Clear all chat and quality feedback data.</p>
+                                </div>
+                                <div class="danger-action">
+                                    <label class="checkbox-container text-danger">
+                                        <input type="checkbox" id="confirm-erase-logs"> Confirm
+                                    </label>
+                                    <button class="btn btn-danger" id="btn-erase-logs" disabled onclick="eraseAllLogs()">Erase Logs</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff-only Section: Role Change Request Status -->
+                <div id="staff-requests-section" class="admin-column hidden" style="margin-bottom: 25px;">
+                    <div class="column-header">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> My Role Change Requests</h3>
+                    </div>
+                    <div class="feedback-table-wrapper">
+                        <table class="feedback-table">
+                            <thead>
+                                <tr>
+                                    <th>Requested Role</th>
+                                    <th>Requested Username</th>
+                                    <th>Requested Name</th>
+                                    <th>Submitted At</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-requests-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Staff Management & Registration Console (Manager Only) -->
+                <div class="admin-sections-layout staff-management-section hidden" style="margin-bottom: 25px;">
+                    <!-- Register Staff Card -->
+                    <div class="admin-column register-staff-card">
+                        <div class="column-header">
+                            <h3><i class="fa-solid fa-user-plus"></i> Register New Staff</h3>
+                        </div>
+                        <form id="register-staff-form" class="upload-section">
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-user-pen"></i></div>
+                                <input type="text" id="register-username" placeholder=" " required autocomplete="username">
+                                <label for="register-username">Username</label>
+                                <div class="input-underline"></div>
+                            </div>
+                            
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                                <input type="password" id="register-password" placeholder=" " required autocomplete="new-password">
+                                <label for="register-password">Password</label>
+                                <div class="input-underline"></div>
+                            </div>
+                            
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-signature"></i></div>
+                                <input type="text" id="register-display-name" placeholder=" " required>
+                                <label for="register-display-name">Display Name</label>
+                                <div class="input-underline"></div>
+                            </div>
+
+                            <div class="input-group floating-label-group">
+                                <div class="input-icon"><i class="fa-solid fa-envelope"></i></div>
+                                <input type="email" id="register-email" placeholder=" " required>
+                                <label for="register-email">Email Address</label>
+                                <div class="input-underline"></div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="static-label" for="register-role">Access Role</label>
+                                <select id="register-role" class="form-select-custom" onchange="updateDesignationOptions()">
+                                    <option value="manager">Manager (Full Access)</option>
+                                    <option value="kitchen" selected>Kitchen (Food Safety & Prep)</option>
+                                    <option value="server">Server (Service & Spills)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="static-label" for="register-designation">Designation</label>
+                                <select id="register-designation" class="form-select-custom">
+                                    <option value="Head Chef">Head Chef</option>
+                                    <option value="Sous Chef">Sous Chef</option>
+                                    <option value="Head of Kitchen">Head of Kitchen</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-register-submit">
+                                <i class="fa-solid fa-user-check"></i> Register Staff Member
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Role Change Requests Card -->
+                    <div class="admin-column role-requests-card">
+                        <div class="column-header">
+                            <h3><i class="fa-solid fa-envelope-open-text"></i> Pending Role Change Requests</h3>
+                        </div>
+                        <div class="doc-list-wrapper" id="role-requests-list-container" style="max-height: 380px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Table -->
+                <div class="audit-log-section fade-in-up">
+                    <div class="column-header">
+                        <h3><i class="fa-solid fa-receipt"></i> Audit Logs & Feedback</h3>
+                    </div>
+                    <div class="feedback-table-wrapper">
+                        <table class="feedback-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Timestamp</th>
+                                    <th>Query & Response</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedback-logs-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================= PROFILE EDIT MODAL ========================= -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-card fade-in">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-gear"></i> Update Profile Name</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-profile-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="profile-edit-form">
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-signature"></i></div>
+                        <input type="text" id="profile-new-name" placeholder=" " required>
+                        <label for="profile-new-name">Display Name</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="static-label" for="profile-role-select">Access Role</label>
+                        <select id="profile-role-select" class="form-select-custom" style="width:100%; padding:10px 14px; background:#0e1320; border:1px solid rgba(255,255,255,0.08); border-radius:8px; color:var(--text-main); font-family:inherit; outline:none; margin-top:5px; margin-bottom:15px;">
+                            <option value="manager">Manager (Full Access)</option>
+                            <option value="kitchen">Kitchen (Food Safety & Prep)</option>
+                            <option value="server">Server (Spills & Service)</option>
+                        </select>
+                    </div>
+
+                    <div id="username-change-section" class="hidden">
+                        <div class="info-alert" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 12px; margin: 0 0 15px 0; color: #fbbf24; font-size: 0.8rem; line-height: 1.4;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <strong>Role change detected:</strong> To proceed, you must change your username. This ensures you only have access to your designated role.
+                        </div>
+                        <div class="input-group floating-label-group">
+                            <div class="input-icon"><i class="fa-solid fa-user-pen"></i></div>
+                            <input type="text" id="profile-new-username" placeholder=" ">
+                            <label for="profile-new-username">New Username</label>
+                            <div class="input-underline"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="profile-error-box" class="error-box hidden" style="margin-top: -5px; margin-bottom: 15px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="profile-error-msg">Please enter a valid name.</span>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <input type="email" id="profile-email" placeholder=" ">
+                        <label for="profile-email">Email Address (for password recovery)</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div id="email-status-msg" class="email-status-msg hidden"></div>
+                    <button type="button" class="btn btn-secondary btn-small" id="btn-save-email" onclick="handleEmailUpdate()" style="margin-bottom: 15px; width: 100%;">
+                        <i class="fa-solid fa-envelope-circle-check"></i> Save Email
+                    </button>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-save-profile">
+                        <i class="fa-solid fa-check"></i> Save & Apply Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= FORGOT PASSWORD MODAL ========================= -->
+    <div id="forgot-password-modal" class="modal-overlay hidden">
+        <div class="modal-card fade-in" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-unlock-keyhole"></i> Reset Password</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-forgot-modal" onclick="closeForgotPasswordModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Step indicators -->
+                <div class="otp-steps-indicator">
+                    <div class="otp-step active" id="otp-step-1-indicator"><span>1</span> Email</div>
+                    <div class="otp-step-divider"></div>
+                    <div class="otp-step" id="otp-step-2-indicator"><span>2</span> Verify</div>
+                    <div class="otp-step-divider"></div>
+                    <div class="otp-step" id="otp-step-3-indicator"><span>3</span> Reset</div>
+                </div>
+
+                <!-- Step 1: Enter Email -->
+                <div id="forgot-step-1" class="forgot-step active">
+                    <p class="step-description">Enter your registered email address to receive a one-time password (OTP).</p>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <input type="email" id="forgot-email" placeholder=" " required>
+                        <label for="forgot-email">Registered Email</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div id="forgot-error-1" class="error-box hidden" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="forgot-error-msg-1"></span>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" id="btn-send-otp" onclick="handleForgotPasswordRequest()">
+                        <i class="fa-solid fa-paper-plane"></i> Send OTP
+                    </button>
+                </div>
+
+                <!-- Step 2: Enter OTP -->
+                <div id="forgot-step-2" class="forgot-step">
+                    <p class="step-description">Enter the 6-digit OTP code sent to your email.</p>
+                    <div class="otp-sent-info">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
+                        <span>OTP sent to <strong id="otp-sent-email"></strong></span>
+                    </div>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-hashtag"></i></div>
+                        <input type="text" id="forgot-otp" placeholder=" " maxlength="6" required autocomplete="one-time-code" style="letter-spacing: 6px; font-size: 1.2rem; text-align: center; font-weight: 700;">
+                        <label for="forgot-otp">6-Digit OTP Code</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div id="forgot-error-2" class="error-box hidden" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="forgot-error-msg-2"></span>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" id="btn-verify-otp" onclick="handleOtpVerification()">
+                        <i class="fa-solid fa-shield-check"></i> Verify OTP
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-small" style="width: 100%; margin-top: 8px;" onclick="handleForgotPasswordRequest()">
+                        <i class="fa-solid fa-rotate"></i> Resend OTP
+                    </button>
+                </div>
+
+                <!-- Step 3: New Password -->
+                <div id="forgot-step-3" class="forgot-step">
+                    <p class="step-description">Set your new password below.</p>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password" id="forgot-new-password" placeholder=" " required autocomplete="new-password">
+                        <label for="forgot-new-password">New Password</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password" id="forgot-confirm-password" placeholder=" " required autocomplete="new-password">
+                        <label for="forgot-confirm-password">Confirm Password</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div id="forgot-error-3" class="error-box hidden" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="forgot-error-msg-3"></span>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" id="btn-reset-password" onclick="handlePasswordReset()">
+                        <i class="fa-solid fa-check-double"></i> Reset Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= CHANGE PASSWORD MODAL ========================= -->
+    <div id="change-password-modal" class="modal-overlay hidden">
+        <div class="modal-card fade-in" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> Change Password</h3>
+                <button type="button" class="btn-close-modal" onclick="closeChangePasswordModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="change-password-form">
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password" id="change-current-password" placeholder=" " required autocomplete="current-password">
+                        <label for="change-current-password">Current Password</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password" id="change-new-password" placeholder=" " required autocomplete="new-password">
+                        <label for="change-new-password">New Password</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div class="input-group floating-label-group">
+                        <div class="input-icon"><i class="fa-solid fa-lock"></i></div>
+                        <input type="password" id="change-confirm-password" placeholder=" " required autocomplete="new-password">
+                        <label for="change-confirm-password">Confirm New Password</label>
+                        <div class="input-underline"></div>
+                    </div>
+                    <div id="change-password-error" class="error-box hidden" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="change-password-error-msg"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-change-password-submit">
+                        <i class="fa-solid fa-check"></i> Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
